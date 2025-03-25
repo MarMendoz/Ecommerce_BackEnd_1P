@@ -1,8 +1,6 @@
 package py.com.progweb.prueba.ejb;
 
 import py.com.progweb.prueba.model.ProductoEntity;
-import py.com.progweb.prueba.model.CategoriaEntity;
-
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;

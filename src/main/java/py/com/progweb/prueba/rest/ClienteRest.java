@@ -21,17 +21,31 @@ public class ClienteRest {
     public Response listar() {
         List<ClienteEntity> clientes = clienteDAO.listar();
         return Response.ok(clientes).build();
-    }
+        }
 
-    @POST
-    public Response agregar(ClienteEntity cliente) {
+        @POST
+        public Response agregar(ClienteEntity cliente) {
         clienteDAO.insertar(cliente);
         return Response.ok(cliente).build();
-    }
+        }
 
-    @PUT
-    @Path("/{id}")
-    public Response actualizar(@PathParam("id") Integer id, ClienteEntity cliente) {
+        @POST
+        @Path("/bulk")
+        public Response agregarEnMasa(List<ClienteEntity> clientes) {
+        for (ClienteEntity cliente : clientes) {
+            try {
+            clienteDAO.insertar(cliente);
+            } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity("Error al insertar el cliente: " + cliente.getNombre()).build();
+            }
+        }
+        return Response.ok(clientes).build();
+        }
+
+        @PUT
+        @Path("/{id}")
+        public Response actualizar(@PathParam("id") Integer id, ClienteEntity cliente) {
         ClienteEntity existente = clienteDAO.obtener(id);
         if (existente == null)
             return Response.status(Response.Status.NOT_FOUND).build();
@@ -48,7 +62,13 @@ public class ClienteRest {
     @DELETE
     @Path("/{id}")
     public Response eliminar(@PathParam("id") Integer id) {
-        clienteDAO.eliminar(id);
-        return Response.ok().build();
+        try {
+            clienteDAO.eliminar(id);
+            return Response.ok().build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                           .entity("Error: Cliente relacionado a ventas no puede ser eliminado.")
+                           .build();
+        }
     }
 }

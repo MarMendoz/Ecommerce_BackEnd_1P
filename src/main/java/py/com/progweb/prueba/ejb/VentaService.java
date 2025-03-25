@@ -4,8 +4,6 @@ import py.com.progweb.prueba.model.*;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.mail.*;
-import javax.mail.internet.*;
 import java.time.LocalDateTime;
 import java.util.*;
 

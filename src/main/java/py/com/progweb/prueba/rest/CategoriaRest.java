@@ -29,6 +29,20 @@ public class CategoriaRest {
         return Response.ok(c).build();
     }
 
+    @POST
+    @Path("/bulk")
+    public Response agregarEnMasa(List<CategoriaEntity> categorias) {
+        for (CategoriaEntity categoria : categorias) {
+            try {
+                categoriaDAO.insertar(categoria);
+            } catch (Exception e) {
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                        .entity("Error al insertar la categoría: " + categoria.getNombre()).build();
+            }
+        }
+        return Response.ok(categorias).build();
+    }
+
     @PUT
     @Path("/{id}")
     public Response actualizar(@PathParam("id") Integer id, CategoriaEntity categoria) {
@@ -44,7 +58,12 @@ public class CategoriaRest {
     @DELETE
     @Path("/{id}")
     public Response eliminar(@PathParam("id") Integer id) {
-        categoriaDAO.eliminar(id);
+        try {
+            categoriaDAO.eliminar(id);
+        } catch (Exception e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("No se puede eliminar la categoría porque está relacionada con otros registros.").build();
+        }
         return Response.ok().build();
     }
 }

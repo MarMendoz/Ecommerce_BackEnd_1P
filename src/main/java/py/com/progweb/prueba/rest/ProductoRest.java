@@ -40,6 +40,27 @@ public class ProductoRest {
         return Response.ok(producto).build();
     }
 
+    @POST
+    @Path("/bulk")
+    public Response agregarEnMasa(List<ProductoEntity> productos) {
+        for (ProductoEntity producto : productos) {
+            CategoriaEntity categoria = categoriaDAO.obtener(producto.getCategoria().getIdCategoria());
+            if (categoria == null) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("Categoría no encontrada para el producto: " + producto.getNombre()).build();
+            }
+
+            producto.setCategoria(categoria);
+            try {
+                productoDAO.insertar(producto);
+            } catch (Exception e) {
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                        .entity("Error al insertar el producto: " + producto.getNombre()).build();
+            }
+        }
+        return Response.ok(productos).build();
+    }
+
     @PUT
     @Path("/{id}")
     public Response actualizar(@PathParam("id") Integer id, ProductoEntity producto) {
