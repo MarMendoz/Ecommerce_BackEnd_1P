@@ -1,5 +1,5 @@
 # Maven y archivos temporales
-**/target/
+**/target/*
 
 # Eclipse/IDE
 .settings/

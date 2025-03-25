@@ -32,15 +32,15 @@ public class ClienteRest {
         @POST
         @Path("/bulk")
         public Response agregarEnMasa(List<ClienteEntity> clientes) {
-        for (ClienteEntity cliente : clientes) {
-            try {
-            clienteDAO.insertar(cliente);
-            } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity("Error al insertar el cliente: " + cliente.getNombre()).build();
+            for (ClienteEntity cliente : clientes) {
+                try {
+                clienteDAO.insertar(cliente);
+                } catch (Exception e) {
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Error al insertar el cliente: " + cliente.getNombre()).build();
+                }
             }
-        }
-        return Response.ok(clientes).build();
+            return Response.ok(clientes).build();
         }
 
         @PUT
