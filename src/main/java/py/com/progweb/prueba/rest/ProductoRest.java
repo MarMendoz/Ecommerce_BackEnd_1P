@@ -30,7 +30,12 @@ public class ProductoRest {
 
     @POST
     public Response agregar(ProductoEntity producto) {
-        CategoriaEntity categoria = categoriaDAO.obtener(producto.getCategoria().getIdCategoria());
+        CategoriaEntity categoria = null;
+        try {
+            categoria = getCategoria(producto);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         if (categoria == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Categoría no encontrada").build();
         }
@@ -40,11 +45,27 @@ public class ProductoRest {
         return Response.ok(producto).build();
     }
 
+    private CategoriaEntity getCategoria(ProductoEntity producto) throws Exception {
+        CategoriaEntity categoria;
+        try {
+            categoria = categoriaDAO.obtener(producto.getCategoria().getIdCategoria());
+        } catch (Exception e) {
+            throw new WebApplicationException("Error al obtener la categoria: " + e.getMessage(),
+                    Response.Status.INTERNAL_SERVER_ERROR);
+        }
+        return categoria;
+    }
+
     @POST
     @Path("/bulk")
     public Response agregarEnMasa(List<ProductoEntity> productos) {
         for (ProductoEntity producto : productos) {
-            CategoriaEntity categoria = categoriaDAO.obtener(producto.getCategoria().getIdCategoria());
+            CategoriaEntity categoria = null;
+            try {
+                categoria = getCategoria(producto);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             if (categoria == null) {
                 return Response.status(Response.Status.BAD_REQUEST)
                         .entity("Categoría no encontrada para el producto: " + producto.getNombre()).build();
@@ -69,15 +90,23 @@ public class ProductoRest {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        CategoriaEntity categoria = categoriaDAO.obtener(producto.getCategoria().getIdCategoria());
-        if (categoria == null) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Categoría no encontrada").build();
+        if (producto.getCategoria() != null && producto.getCategoria().getIdCategoria() != null) {
+            CategoriaEntity categoria = categoriaDAO.obtener(producto.getCategoria().getIdCategoria());
+            if (categoria == null) {
+                return Response.status(Response.Status.BAD_REQUEST).entity("Categoría no encontrada").build();
+            }
+            existente.setCategoria(categoria);
         }
 
-        existente.setNombre(producto.getNombre());
-        existente.setCategoria(categoria);
-        existente.setPrecioVenta(producto.getPrecioVenta());
-        existente.setCantidadExistente(producto.getCantidadExistente());
+        if (producto.getNombre() != null) {
+            existente.setNombre(producto.getNombre());
+        }
+        if (producto.getPrecioVenta() != null) {
+            existente.setPrecioVenta(producto.getPrecioVenta());
+        }
+        if (producto.getCantidadExistente() != null) {
+            existente.setCantidadExistente(producto.getCantidadExistente());
+        }
 
         productoDAO.actualizar(existente);
         return Response.ok(existente).build();
@@ -86,7 +115,12 @@ public class ProductoRest {
     @DELETE
     @Path("/{id}")
     public Response eliminar(@PathParam("id") Integer id) {
-        productoDAO.eliminar(id);
+        try {
+            productoDAO.eliminar(id);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
         return Response.ok().build();
     }
 }

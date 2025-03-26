@@ -25,10 +25,12 @@ public class ProductoDAO {
         this.em.merge(p);
     }
 
-    public void eliminar(Integer id) {
+    public void eliminar(Integer id) throws Exception {
         ProductoEntity p = this.obtener(id);
         if (p != null) {
             this.em.remove(p);
+        } else {
+            throw new Exception("ProductoEntity with the given ID does not exist.");
         }
     }
 

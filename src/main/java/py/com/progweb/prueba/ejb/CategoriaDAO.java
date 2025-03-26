@@ -18,7 +18,11 @@ public class CategoriaDAO {
     }
 
     public CategoriaEntity obtener(Integer id) {
-        return this.em.find(CategoriaEntity.class, id);
+        CategoriaEntity entity = this.em.find(CategoriaEntity.class, id);
+        if (entity == null) {
+            throw new IllegalArgumentException("CategoriaEntity con id " + id + " no encontrada");
+        }
+        return entity;
     }
 
     public List<CategoriaEntity> listar() {
@@ -29,9 +33,15 @@ public class CategoriaDAO {
         this.em.merge(c);
     }
 
-    public void eliminar(Integer id) {
+    public void eliminar(Integer id) throws Exception {
         CategoriaEntity c = this.obtener(id);
         if (c != null) {
+            if (!this.em.createQuery("SELECT p FROM ProductoEntity p WHERE p.categoria.id = :id")
+                .setParameter("id", id)
+                .getResultList()
+                .isEmpty()) {
+                throw new IllegalArgumentException("No se puede eliminar la categoria porque está relacionada con productos.");
+            }
             this.em.remove(c);
         }
     }

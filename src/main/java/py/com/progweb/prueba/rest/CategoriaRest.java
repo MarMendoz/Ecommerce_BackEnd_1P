@@ -60,10 +60,13 @@ public class CategoriaRest {
     public Response eliminar(@PathParam("id") Integer id) {
         try {
             categoriaDAO.eliminar(id);
-        } catch (Exception e) {
+            return Response.ok().build();
+        } catch (IllegalArgumentException e) {
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("No se puede eliminar la categoría porque está relacionada con otros registros.").build();
+                    .entity("No se puede eliminar la categoria porque esta relacionada con otros registros.").build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("Categoría con id " + id + " no encontrada.").build();
         }
-        return Response.ok().build();
     }
 }
